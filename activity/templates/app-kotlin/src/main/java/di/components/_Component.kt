@@ -14,5 +14,4 @@ interface <%= activityName %>Component {
     fun inject(activity: <%= activityName %>Activity)
 
     // android-hipster-needle-component-injection-method
-
 }

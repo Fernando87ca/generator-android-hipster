@@ -18,10 +18,34 @@ module.exports = ActivityGenerator.extend({
 
     initializing: {
         getConfig: function (args) {
-            this.appName = this.config.get('appName');
-            this.language = this.config.get('language');
-            this.appPackage = this.config.get('appPackage');
-            this.nucleus = this.config.get('nucleus');
+            console.log('inizializing config function fragment');
+
+            this.appName = 'tsb-mobilebanking-android';
+            this.mainPackage = 'tsb-mobile';
+            this.genericPackage = 'src.main.java';
+            this.imageLib = 'none';
+            this.glide = false;
+            this.picasso = false;
+            this.eventbus = false;
+            this.mixpanel = false;
+            this.timber = false;
+            this.jodatime = false;
+            this.threetenabp = false;
+            this.jodamoney = false;
+            this.appPackage = 'uk.co.tsb.mobilebank';
+            this.androidTargetSdkVersion = 28;
+            this.androidMinSdkVersion = 19;
+            this.language = 'kotlin';
+            this.calligraphy = false;
+            this.playServices = false;
+            this.paperparcel = false;
+            this.stetho = false;
+            this.printview = false;
+            this.autoparcel = true; // Yeap, need to be true at this time
+            // this.autoparcel = props.autoparcel
+            this.mvp = 'embeed';
+            this.mvpembeed = true;
+            this.nucleus = false;
         }
     },
     prompting: function () {
@@ -32,7 +56,6 @@ module.exports = ActivityGenerator.extend({
         ));
 
         var defaultAppBaseName = 'Sample';
-        var defaultName = '';
 
         var prompts = [{
             name: 'name',
@@ -43,115 +66,13 @@ module.exports = ActivityGenerator.extend({
                 return 'Your UseCase name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
             },
             default: this.defaultAppBaseName
-        },
-            {
-                when: function (response) {
-                    defaultName = response.name;
-                    return true;
-                },
-                name: 'package',
-                message: 'What is the package of the Fragment? (it will be placed inside ui package)',
-                validate: function (input) {
-                    if (/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(input)) return true;
-                    return 'The package name you have provided is not a valid Java package name.';
-                },
-                default: defaultName.toLowerCase(),
-                store: true
-            },
-            {
-                type: 'confirm',
-                name: 'usePresenter',
-                message: 'Create custom Presenter?',
-                default: true
-            },
-            {
-                type: 'confirm',
-                name: 'activity',
-                message: 'Apply fragment to some activity?',
-                default: false
-            },
-            {
-                when: function (response) {
-                    return response.activity;
-                },
-                name: 'activityName',
-                message: 'What is the package of the Activity?',
-                store: true
-            },
-            {
-                when: function (response) {
-                    return response.activity;
-                },
-                type: 'list',
-                name: 'componentType',
-                message: 'For dependency injection, do you want to inject in Component... ',
-                choices: [
-                    {
-                        value: 'createNew',
-                        name: 'The SAME component of the activity, only when the activity owns your Component / Module'
-                    },
-                    {
-                        value: 'useApplication',
-                        name: 'Use the ApplicationComponent to inject this activity'
-                    },
-                    {
-                        value: 'useUserComponent',
-                        name: 'Use the UserComponent to inject this activity'
-                    },
-                    {
-                        value: 'useExistingComponent',
-                        name: 'Use the ANOTHER existing component to inject this activity'
-                    },
-                    {
-                        value: 'createNewSub',
-                        name: 'The SAME component of the activity based on @Subcomponent'
-                    },
-                ],
-                default: 0
-            },
-            {
-                when: function (response) {
-                    return !response.activity;
-                },
-                type: 'list',
-                name: 'componentType',
-                message: 'For dependency injection, do you want to inject in Component... ',
-                choices: [
-                    {
-                        value: 'useApplication',
-                        name: 'Use the ApplicationComponent to inject this fragment'
-                    },
-                    {
-                        value: 'useUserComponent',
-                        name: 'Use the UserComponent to inject this fragment'
-                    },
-                    {
-                        value: 'useExistingComponent',
-                        name: 'Use the another existing component to inject this fragment'
-                    }
-
-                ],
-                default: 0
-            },
-            {
-                when: function (response) {
-                    return response.componentType == 'useExistingComponent' || response.componentType == 'createNewSub';
-                },
-                name: 'useExistingComponentName',
-                message: 'What is the full name of the existing Component?',
-                store: true
-            },
-
-        ];
+        }];
 
         this.prompt(prompts, function (props) {
             this.fragmentName = props.name;
-            this.fragmentPackageName = props.package;
-            this.activity = props.activity;
-            this.activityName = props.activityName;
-            this.usePresenter = props.usePresenter;
-            this.componentType = props.componentType;
-            this.useExistingComponentName = props.useExistingComponentName;
+            this.fragmentPackageName = this.fragmentName;
+            this.activity = false;
+            this.useExistingComponentName = false;
             done();
         }.bind(this));
     },
@@ -168,75 +89,37 @@ module.exports = ActivityGenerator.extend({
         },
 
         app: function () {
-
             this.fragmentName = _.capitalize(this.fragmentName).replace('Fragment', '');
-            this.activityName = _.capitalize(this.activityName).replace('Activity', '');
 
-            var packageFolder = this.fragmentPackageName.replace(/\./g, '/').replace(this.appPackage, '');
-            var packageDir = this.appPackage.replace(/\./g, '/');
+            const mainPackage = this.mainPackage.replace(/\./g, '/');
+            const projectPackage = this.genericPackage.replace(/\./g, '/');
+            const packageFolder = this.fragmentPackageName.replace(/\./g, '/').replace(this.appPackage, '');
+            const packageDir = this.appPackage.replace(/\./g, '/');
+            const ext = ".kt";
 
-            var appFolder;
-            if (this.language == 'java') {
-                appFolder = 'app-java';
-            } else {
-                appFolder = 'app-kotlin';
-            }
+            const baseConstruction = mainPackage + '/' + projectPackage + '/' + packageDir + '/ui' + '/' + packageFolder;
+            mkdirp(baseConstruction + '/di');
+            mkdirp(baseConstruction + '/presenter');
 
-            this.underscoreFragmentName = _s.underscored(this.fragmentName);
-            this.entityClass = _s.capitalize(this.name);
+            // Check repository to remember the original calls
+            const fragmentName = this.fragmentName + 'Fragment';
+            const packageName = this.appPackage + '.ui.' + this.fragmentPackageName;
+            const component = this.fragmentName + 'FragmentProvider';
+            // @TODO: linia que genera los imports en las templates
+            this.addComponentInjectionKotlin(fragmentName, packageDir, packageName, component);
 
-            var ext = this.language == 'java' ? ".java" : ".kt";
+            const templatesSource = 'app-kotlin/src/main/java/';
+            this.template(templatesSource + '_Fragment' + ext, baseConstruction + '/' + this.fragmentName + 'Fragment' + ext, this, {});
+            this.template(templatesSource + '_Presenter' + ext, baseConstruction + '/presenter/' + this.fragmentName + 'Presenter' + ext, this, {});
+            this.template(templatesSource + '_Contract' + ext, baseConstruction + '/' + this.fragmentName + 'Contract' + ext, this, {});
 
-            if (this.componentType == 'createNew') {
-                if (this.language == 'java') {
-                    this.addComponentInjection(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, this.activityName + "Component");
-                } else {
-                    this.addComponentInjectionKotlin(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, this.activityName + "Component");
-                }
-            }
-            if (this.componentType == 'createNewSub') {
-                this.useExistingComponentName = this.useExistingComponentName.replace("Component", "");
-                var name = this.useExistingComponentName + "Component";
-                if (this.language == 'java') {
-                    this.addComponentInjection(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, name);
-                } else {
-                    this.addComponentInjectionKotlin(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, name);
-                }
-            } else if (this.componentType == 'useApplication') {
-                if (this.language == 'java') {
-                    this.addComponentInjection(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName)
-                } else {
-                    this.addComponentInjectionKotlin(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName)
-                }
-            } else if (this.componentType == 'useUserComponent') {
-              this.addComponentInjectionKotlin(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, 'UserComponent')
-            } else {
-                this.activityName = this.activityName.replace("Component", "");
-                var name = this.activityName + "Component";
-                if (this.language == 'java') {
-                    this.addComponentInjection(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, name);
-                } else {
-                    this.addComponentInjectionKotlin(this.fragmentName + 'Fragment', packageDir, this.appPackage + '.ui.' + this.fragmentPackageName, name);
-                }
-            }
-
-            this.template(appFolder + '/src/main/java/_Fragment' + ext,
-                'app/src/main/java/' + packageDir + '/ui/' + packageFolder + '/' + this.fragmentName + 'Fragment' + ext, this, {});
-
-            if (this.usePresenter) {
-                this.template(appFolder + '/src/main/java/_Presenter' + ext,
-                    'app/src/main/java/' + packageDir + '/ui/' + packageFolder + '/' + this.fragmentName + 'Presenter' + ext, this, {});
-                this.template(appFolder + '/src/main/java/_View' + ext,
-                    'app/src/main/java/' + packageDir + '/ui/' + packageFolder + '/' + this.fragmentName + 'View' + ext, this, {});
-            }
-
-            this.template('resources/res/layout/_fragment.xml',
-                'app/src/main/res/layout/fragment_' + this.underscoreFragmentName + '.xml', this, {});
-
+            // Dagger Dependencies templates
+            this.template(templatesSource + '_FragmentProvider' + ext, baseConstruction + '/di/' + this.fragmentName + 'FragmentProvider' + ext, this, {});
+            this.template(templatesSource + '_Module' + ext, baseConstruction + '/' + this.fragmentName + 'Module' + ext, this, {});
         },
 
         install: function () {
             //this.installDependencies();
-        }
+        },
     }
 });

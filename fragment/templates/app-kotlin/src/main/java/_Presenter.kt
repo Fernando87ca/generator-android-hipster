@@ -1,12 +1,6 @@
-package <%= appPackage %>.ui.<%= fragmentPackageName %>;
+import uk.co.tsb.mobilebank.ui.BasePresenter
+import javax.inject.Inject
 
-<% if (componentType == 'createNew') { %>import <%= appPackage %>.di.ActivityScope;<% } %>
-<% if (componentType == 'useApplication') { %>import javax.inject.Singleton;<% } %>
-import <%= appPackage %>.ui.base.BasePresenter;
-
-import javax.inject.Inject;
-
-<% if (componentType == 'createNew') { %>@ActivityScope<% } else if (componentType == 'useApplication') { %>@Singleton<% } %>
-class <%= fragmentName %>Presenter @Inject constructor() : BasePresenter<<%= fragmentName %>View>() {
+class Presenter @Inject constructor(): BasePresenter<WebViewContract.View>(), WebViewContract.Presenter {
 
 }

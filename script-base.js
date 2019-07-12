@@ -115,7 +115,6 @@ Generator.prototype.installGradleDependencies = function (config, update) {
 };
 
 
-
 Generator.prototype.addComponentInjection = function (name, basePath, packageName, filename) {
     try {
         var fullPath = 'app/src/main/java/' + basePath + '/di/components/' + (filename != undefined ? (filename + '.java') : 'ApplicationComponent.java');
@@ -167,7 +166,7 @@ Generator.prototype.addCustomComponentInjectionKotlin = function (component, nam
             file: fullPath,
             needle: 'android-hipster-needle-component-injection-method',
             splicable: [
-                'fun inject(' + name.charAt(0).toLowerCase() + name.slice(1) + ': '+name+');'
+                'fun inject(' + name.charAt(0).toLowerCase() + name.slice(1) + ': ' + name + ');'
             ]
         });
         jhipsterUtils.rewriteFile({
@@ -218,7 +217,7 @@ Generator.prototype.updateApplicationModuleToProvideKotlin = function (name, bas
             splicable: [
                 '@Provides',
                 '@Singleton',
-                'fun provide' + name + type + '(executor: Scheduler): '+name + type + ' {',
+                'fun provide' + name + type + '(executor: Scheduler): ' + name + type + ' {',
                 '   return ' + name + type + 'Impl(executor);',
                 '}'
             ]
@@ -291,7 +290,7 @@ Generator.prototype.provideInComponentKotlin = function (name, basePath, package
             file: fullPath,
             needle: 'android-hipster-needle-component-injection-method',
             splicable: [
-                'fun provide' + name + type + '(): '+name + type
+                'fun provide' + name + type + '(): ' + name + type
             ]
         });
         jhipsterUtils.rewriteFile({
@@ -306,7 +305,14 @@ Generator.prototype.provideInComponentKotlin = function (name, basePath, package
     }
 };
 
+// @TODO: que es filename que vale 'UserComponent'
 Generator.prototype.addComponentInjectionKotlin = function (name, basePath, packageName, filename) {
+    console.log('************ addComponentInjectionKotlin Function ************');
+    console.log('name' + name);
+    console.log('basePath' + basePath);
+    console.log('packageName' + packageName);
+    console.log('filename' + filename);
+
     try {
         var fullPath = 'app/src/main/java/' + basePath + '/di/components/' + (filename != undefined ? (filename + '.kt') : 'ApplicationComponent.kt');
         jhipsterUtils.rewriteFile({
@@ -413,7 +419,7 @@ Generator.prototype.addMultipleParentGradleDependency = function (dependencies, 
             jhipsterUtils.rewriteReplaceMultiple({
                 file: fullPath,
                 dependencies: dependencies,
-                needle : 'android-hipster-needle-gradle-parent-dependency'
+                needle: 'android-hipster-needle-gradle-parent-dependency'
             });
             //this.log(chalk.green('updated dependency: ' + scope + ' "' + group + ':' + name + ':' + version + '"'));
         } else {
@@ -421,7 +427,7 @@ Generator.prototype.addMultipleParentGradleDependency = function (dependencies, 
             jhipsterUtils.rewriteFileMultiple({
                 file: fullPath,
                 dependencies: dependencies,
-                needle : 'android-hipster-needle-gradle-parent-dependency'
+                needle: 'android-hipster-needle-gradle-parent-dependency'
 
             });
             //this.log(chalk.green('added dependency: ' + scope + ' "' + group + ':' + name + ':' + version + '"'));

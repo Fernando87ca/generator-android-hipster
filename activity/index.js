@@ -50,6 +50,7 @@ module.exports = ActivityGenerator.extend({
         },
             {
                 when: function (response) {
+                    console.log('validate function name: ' + response.name);
                     defaultName = response.name;
                     return true;
                 },

@@ -103,11 +103,6 @@ module.exports = ActivityGenerator.extend({
                 .toLocaleLowerCase();
             this.packageFolder = packageFolder.toLocaleLowerCase();
 
-            console.log('******************************************');
-            console.log('underscoredFragmentName: ' + this.underscoredFragmentName);
-            console.log('packageFolder: ' + this.packageFolder);
-            console.log('******************************************');
-
             const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/ui' + '/' + this.packageFolder).toLocaleLowerCase();
             mkdirp(baseConstruction + '/di');
             mkdirp(baseConstruction + '/presenter');

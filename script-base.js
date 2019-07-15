@@ -305,13 +305,52 @@ Generator.prototype.provideInComponentKotlin = function (name, basePath, package
     }
 };
 
+Generator.prototype.appNavigatorComponentKotlin = function (appPackage, fragmentName) {
+    console.log('************ appNavigatorComponentKotlin Function ************');
+    console.log('appPackage: ' + appPackage);
+    console.log('fragmentName: ' + fragmentName);
+    console.log('**************************************************************');
+
+    const packageName = appPackage.replace(/\./g, '/');
+    const navigatorComponentPath = 'tsb-mobile/src/main/java/' + packageName + '/controller/NavigationController.kt';
+    const importPackage = fragmentName.toLocaleLowerCase();
+
+    jhipsterUtils.rewriteFile({
+        file: navigatorComponentPath,
+        needle: 'android-hipster-needle-component-navigatorController',
+        splicable: [
+            '// @TODO basic navigation created, make custom changes as you want \n' +
+            '    fun navigateTo' + fragmentName + 'Fragment() {\n' +
+            '        val fragment = ' + fragmentName + 'Fragment.newInstance("test1", "test2")\n' +
+            '        val fragmentTransaction = fragmentManager.beginTransaction()\n' +
+            '            .setCustomAnimations(R.anim.animation_right_to_left,\n' +
+            '               R.anim.animation_center_to_left,\n' +
+            '               R.anim.animation_left_to_right,\n' +
+            '               R.anim.animantion_center_to_right)\n' +
+            '            .replace(containerId, fragment, fragment.tag)\n' +
+            '            .addToBackStack(null)\n' +
+            '\n' +
+            '       this.attemptToCommitFragmentTransaction(fragmentTransaction)\n' +
+            '    }'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: navigatorComponentPath,
+        needle: 'android-hipster-needle-component-navigatorController-import',
+        splicable: [
+            'import ' + appPackage + '.ui.' + importPackage + '.' + fragmentName + 'Fragment'
+        ]
+    });
+};
+
 // @TODO: que es filename que vale 'UserComponent'
 Generator.prototype.addComponentInjectionKotlin = function (name, basePath, packageName, filename) {
     console.log('************ addComponentInjectionKotlin Function ************');
-    console.log('name' + name);
-    console.log('basePath' + basePath);
-    console.log('packageName' + packageName);
-    console.log('filename' + filename);
+    console.log('name: ' + name);
+    console.log('basePath: ' + basePath);
+    console.log('packageName: ' + packageName);
+    console.log('filename_ ' + filename);
+    console.log('**************************************************************');
 
     try {
         var fullPath = 'app/src/main/java/' + basePath + '/di/components/' + (filename != undefined ? (filename + '.kt') : 'ApplicationComponent.kt');

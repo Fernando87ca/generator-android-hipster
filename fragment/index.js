@@ -59,7 +59,7 @@ module.exports = ActivityGenerator.extend({
 
         var prompts = [{
             name: 'name',
-            message: 'What are the name of your Fragment? (Without FragmentSuffix. Ex: Login (for a LoginFragment)',
+            message: 'What are the name of your Fragment? (Without FragmentSuffix. Ex: Login',
             store: true,
             validate: function (input) {
                 if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
@@ -96,19 +96,26 @@ module.exports = ActivityGenerator.extend({
             const packageFolder = this.fragmentPackageName.replace(/\./g, '/').replace(this.appPackage, '');
             const packageDir = this.appPackage.replace(/\./g, '/');
             const ext = ".kt";
+            var xmlTempLayout = _.capitalize(this.fragmentPackageName);
+            this.underscoredFragmentName = 'fragment' + xmlTempLayout
+                .replace(/([A-Z])/g, '_$1')
+                .trim()
+                .toLocaleLowerCase();
+            this.packageFolder = packageFolder.toLocaleLowerCase();
 
-            const baseConstruction = mainPackage + '/' + projectPackage + '/' + packageDir + '/ui' + '/' + packageFolder;
+            console.log('******************************************');
+            console.log('underscoredFragmentName: ' + this.underscoredFragmentName);
+            console.log('packageFolder: ' + this.packageFolder);
+            console.log('******************************************');
+
+            const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/ui' + '/' + this.packageFolder).toLocaleLowerCase();
             mkdirp(baseConstruction + '/di');
             mkdirp(baseConstruction + '/presenter');
 
-            // Check repository to remember the original calls
-            const fragmentName = this.fragmentName + 'Fragment';
-            const packageName = this.appPackage + '.ui.' + this.fragmentPackageName;
-            const component = this.fragmentName + 'FragmentProvider';
-            // @TODO: linia que genera los imports en las templates
-            this.addComponentInjectionKotlin(fragmentName, packageDir, packageName, component);
+            this.appNavigatorComponentKotlin(this.appPackage, this.fragmentName);
 
             const templatesSource = 'app-kotlin/src/main/java/';
+            //  // Template for MVP model
             this.template(templatesSource + '_Fragment' + ext, baseConstruction + '/' + this.fragmentName + 'Fragment' + ext, this, {});
             this.template(templatesSource + '_Presenter' + ext, baseConstruction + '/presenter/' + this.fragmentName + 'Presenter' + ext, this, {});
             this.template(templatesSource + '_Contract' + ext, baseConstruction + '/' + this.fragmentName + 'Contract' + ext, this, {});
@@ -116,6 +123,9 @@ module.exports = ActivityGenerator.extend({
             // Dagger Dependencies templates
             this.template(templatesSource + '_FragmentProvider' + ext, baseConstruction + '/di/' + this.fragmentName + 'FragmentProvider' + ext, this, {});
             this.template(templatesSource + '_Module' + ext, baseConstruction + '/' + this.fragmentName + 'Module' + ext, this, {});
+
+            // // Template for xml View
+            this.template('resources/res/layout/_fragment.xml', 'tsb-mobile/src/main/res/layout/' + this.underscoredFragmentName + '.xml', this, {});
         },
 
         install: function () {

@@ -1,4 +1,4 @@
-package <%= appPackage %>.ui.<%= fragmentPackageName %>;
+package <%= appPackage %>.ui.<%= packageFolder %>;
 
 import <%= appPackage %>.ui.BaseContract;
 

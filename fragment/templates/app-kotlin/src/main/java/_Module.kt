@@ -2,7 +2,7 @@ package uk.co.tsb.mobilebank.ui.<%= packageFolder %>
 
 import dagger.Binds
 import dagger.Module
-import uk.co.tsb.mobilebank.ui.<%= fragmentPackageName %>.presenter.<%= fragmentName %>Presenter
+import uk.co.tsb.mobilebank.ui.<%= packageFolder %>.presenter.<%= fragmentName %>Presenter
 
 @Module
 abstract class <%= fragmentName %>Module {

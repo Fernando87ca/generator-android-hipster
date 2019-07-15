@@ -2,8 +2,8 @@ package uk.co.tsb.mobilebank.ui.<%= packageFolder %>.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import uk.co.tsb.mobilebank.ui.<%= fragmentPackageName %>.<%= fragmentName %>Fragment
-import uk.co.tsb.mobilebank.ui.<%= fragmentPackageName %>.<%= fragmentName %>Module
+import uk.co.tsb.mobilebank.ui.<%= packageFolder %>.<%= fragmentName %>Fragment
+import uk.co.tsb.mobilebank.ui.<%= packageFolder %>.<%= fragmentName %>Module
 
 @Module
 abstract class <%= fragmentName %>FragmentProvider {

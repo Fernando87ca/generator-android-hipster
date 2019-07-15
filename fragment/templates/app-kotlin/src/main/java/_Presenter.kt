@@ -1,7 +1,7 @@
 package uk.co.tsb.mobilebank.ui.<%= packageFolder %>.presenter
 
 import uk.co.tsb.mobilebank.ui.BasePresenter
-import uk.co.tsb.mobilebank.ui.<%= fragmentPackageName %>.<%= fragmentName %>Contract
+import uk.co.tsb.mobilebank.ui.<%= packageFolder %>.<%= fragmentName %>Contract
 import javax.inject.Inject
 
 class <%= fragmentName %>Presenter @Inject constructor(

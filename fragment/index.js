@@ -18,8 +18,6 @@ module.exports = ActivityGenerator.extend({
 
     initializing: {
         getConfig: function (args) {
-            console.log('inizializing config function fragment');
-
             this.appName = 'tsb-mobilebanking-android';
             this.mainPackage = 'tsb-mobile';
             this.genericPackage = 'src.main.java';
@@ -41,8 +39,7 @@ module.exports = ActivityGenerator.extend({
             this.paperparcel = false;
             this.stetho = false;
             this.printview = false;
-            this.autoparcel = true; // Yeap, need to be true at this time
-            // this.autoparcel = props.autoparcel
+            this.autoparcel = true;
             this.mvp = 'embeed';
             this.mvpembeed = true;
             this.nucleus = false;

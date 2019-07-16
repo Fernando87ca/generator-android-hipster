@@ -67,7 +67,7 @@ module.exports = ActivityGenerator.extend({
             name: 'useCaseType',
             message: 'Witch type os use case you would create',
             choices: [{
-                value: 'useCase',
+                value: 'UseCase',
                 name: 'Use Case'
             }, {
                 value: 'UseCaseWithParameter',
@@ -96,7 +96,7 @@ module.exports = ActivityGenerator.extend({
             },
             default: this.defaultAppBaseName
         }, {
-            name: 'fragment',
+            name: 'fragmentName',
             message: 'What fragment would you like add this Use Case, (Without UseCaseSuffix). Ex: Login',
             store: true,
             validate: function (input) {
@@ -110,7 +110,7 @@ module.exports = ActivityGenerator.extend({
             this.useCaseName = props.name;
             this.useCaseType = props.useCaseType;
             this.repositoryName = props.repository;
-            this.fragment = props.fragment;
+            this.fragmentName = props.fragmentName;
             done();
         }.bind(this));
     },
@@ -126,10 +126,31 @@ module.exports = ActivityGenerator.extend({
         },
 
         app: function () {
-            console.log(this.useCaseName);
-            console.log(this.useCaseType);
-            console.log(this.repositoryName);
-            console.log(this.fragment);
+            this.useCaseName = _.capitalize(this.useCaseName).replace('UseCase', '');
+            this.fragmentName = _.capitalize(this.fragmentName);
+            this.packageName = this.useCaseName.toLowerCase();
+
+            const mainPackage = this.mainPackage.replace(/\./g, '/');
+            const projectPackage = this.genericPackage.replace(/\./g, '/');
+            const packageDir = this.appPackage.replace(/\./g, '/');
+            const ext = ".kt";
+
+            // Creating folder structure
+            const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/domain/interactor/' + this.packageName).toLocaleLowerCase();
+            //mkdirp(baseConstruction);
+
+            // Adding presenter at selected Presenter
+            //this.addUseCaseToPresenter(packageDir, this.fragmentName, this.useCaseName);
+
+            // template for Use Case
+            const templatesSource = 'app-kotlin/src/main/java/usecase/';
+            console.log('*******' + baseConstruction + '/' + this.useCaseName + 'UseCase' + ext);
+            //this.template(templatesSource + '_UseCase' + ext, baseConstruction + '/' + this.useCaseName + 'UseCase' + ext, this, {});
+
+            // if repository is defined
+            if (this.repositoryName !== "" || this.repositoryName !== undefined) {
+                this.addRepositoryToUseCase(packageDir, this.useCaseName);
+            }
         },
 
         install: function () {

@@ -100,14 +100,14 @@ module.exports = ActivityGenerator.extend({
                 .toLocaleLowerCase();
             this.packageFolder = packageFolder.toLocaleLowerCase();
 
-            const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/ui' + '/' + this.packageFolder).toLocaleLowerCase();
+            const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/ui/' + this.packageFolder).toLocaleLowerCase();
             mkdirp(baseConstruction + '/di');
             mkdirp(baseConstruction + '/presenter');
 
             this.appNavigatorComponentKotlin(this.appPackage, this.fragmentName);
 
             const templatesSource = 'app-kotlin/src/main/java/';
-            //  // Template for MVP model
+            // Template for MVP model
             this.template(templatesSource + '_Fragment' + ext, baseConstruction + '/' + this.fragmentName + 'Fragment' + ext, this, {});
             this.template(templatesSource + '_Presenter' + ext, baseConstruction + '/presenter/' + this.fragmentName + 'Presenter' + ext, this, {});
             this.template(templatesSource + '_Contract' + ext, baseConstruction + '/' + this.fragmentName + 'Contract' + ext, this, {});
@@ -116,7 +116,7 @@ module.exports = ActivityGenerator.extend({
             this.template(templatesSource + '_FragmentProvider' + ext, baseConstruction + '/di/' + this.fragmentName + 'FragmentProvider' + ext, this, {});
             this.template(templatesSource + '_Module' + ext, baseConstruction + '/' + this.fragmentName + 'Module' + ext, this, {});
 
-            // // Template for xml View
+            // Template for xml View
             this.template('resources/res/layout/_fragment.xml', 'tsb-mobile/src/main/res/layout/' + this.underscoredFragmentName + '.xml', this, {});
         },
 

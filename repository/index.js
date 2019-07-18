@@ -55,41 +55,17 @@ module.exports = ActivityGenerator.extend({
         var defaultAppBaseName = 'Sample';
 
         var prompts = [{
-            name: 'name',
-            message: 'What are the name of your UseCase (Without UseCaseSuffix. Ex: Login',
+            name: 'repository',
+            message: 'Name of the repository associated to this use case, Ex: Accounts (will crate as AccountsRepository)',
             store: true,
             validate: function (input) {
                 if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
-                return 'Your UseCase name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
+                return 'Your repository name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
             },
             default: this.defaultAppBaseName
         }, {
-            type: 'list',
-            name: 'useCaseType',
-            message: 'Witch type os use case you would create',
-            choices: [{
-                value: 'UseCase',
-                name: 'Use Case'
-            }, {
-                value: 'UseCaseWithParameter',
-                name: 'Use Case With Parameter'
-            }, {
-                value: 'SingleUseCase',
-                name: 'Single Use Case'
-            }, {
-                value: 'SingleUseCaseWithParameter',
-                name: 'Single Use Case With Parameter'
-            }, {
-                value: 'CompletableUseCase',
-                name: 'Completable Use Case'
-            }, {
-                value: 'CompletableUseCaseWithParameter',
-                name: 'Completable Use Case With Parameter'
-            }],
-            default: 0
-        }, {
-            name: 'fragmentName',
-            message: 'What fragment would you like add this Use Case, (Without UseCaseSuffix). Ex: Login',
+            name: 'usecase',
+            message: 'At which use case you would associate repository, (Without UseCaseSuffix). Ex: Login',
             store: true,
             validate: function (input) {
                 if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
@@ -99,10 +75,8 @@ module.exports = ActivityGenerator.extend({
         }];
 
         this.prompt(prompts, function (props) {
-            this.useCaseName = props.name;
-            this.useCaseType = props.useCaseType;
             this.repositoryName = props.repository;
-            this.fragmentName = props.fragmentName;
+            this.useCaseName = props.usecase;
             done();
         }.bind(this));
     },
@@ -118,26 +92,28 @@ module.exports = ActivityGenerator.extend({
         },
 
         app: function () {
-            this.useCaseName = _.capitalize(this.useCaseName).replace('UseCase', '');
-            this.fragmentName = _.capitalize(this.fragmentName);
-            this.packageName = this.useCaseName.toLowerCase();
-
             const mainPackage = this.mainPackage.replace(/\./g, '/');
             const projectPackage = this.genericPackage.replace(/\./g, '/');
             const packageDir = this.appPackage.replace(/\./g, '/');
             const ext = ".kt";
 
-            // Creating folder structure
-            const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/domain/interactor/' + this.packageName).toLocaleLowerCase();
-            mkdirp(baseConstruction);
+            this.repositoryName = _.capitalize(this.repositoryName);
+            this.addRepositoryToUseCase(packageDir, this.useCaseName, this.repositoryName);
 
-            // Adding presenter at selected Presenter
-            this.addUseCaseToPresenter(packageDir, this.fragmentName, this.useCaseName);
-
-            // template for Use Case
+            // Creating Repository Interface
             const templatesSource = 'app-kotlin/src/main/java/usecase/';
-            this.template(templatesSource + '_UseCase' + ext, baseConstruction + '/' + this.useCaseName + 'UseCase' + ext, this, {});
+            const repositoryBaseConstruct = mainPackage + '/' + projectPackage + '/' + packageDir + '/domain/repository';
+            this.template(templatesSource + '_Repository' + ext, repositoryBaseConstruct + '/' + this.repositoryName + 'Repository' + ext, this, {});
+
+            // Creating Repository Implementation
+            this.dataFolderName = this.repositoryName.toLowerCase();
+            var repositoryImplBaseConstruct = mainPackage + '/' + projectPackage + '/' + packageDir + '/data/repository/' + this.dataFolderName;
+            mkdirp(repositoryImplBaseConstruct);
+
+            if (!this.repositoryAlreadyExist(packageDir, this.repositoryName))
+                this.template(templatesSource + '_RepositoryImpl' + ext, repositoryImplBaseConstruct + '/' + this.repositoryName + 'RepositoryImpl' + ext, this, {});
         }
+
     },
 
     install: function () {

@@ -1,5 +1,6 @@
 'use strict';
 var path = require('path'),
+    fs = require('fs'),
     util = require('util'),
     _ = require('lodash'),
     _s = require('underscore.string'),
@@ -347,7 +348,6 @@ Generator.prototype.addUseCaseToPresenter = function (packageDir, targetPresente
     const presenterName = _.capitalize(targetPresenter) + 'Presenter';
     const presenterPath = 'tsb-mobile/src/main/java/' + packageDir + '/ui/' + targetPresenter.toLowerCase() + '/presenter/' + presenterName + '.kt';
     const useCaseVariableName = useCase[0].toLocaleLowerCase() + useCase.substring(1);
-    console.log('useCaseVariableName: ' + useCaseVariableName);
 
     try {
         jhipsterUtils.rewriteFile({
@@ -365,32 +365,96 @@ Generator.prototype.addUseCaseToPresenter = function (packageDir, targetPresente
             ]
         });
     } catch (e) {
-        this.log('Error integrating Use case on presenter: ' + targetPresenter + 'ensure that corresponding presenter exit or review the following logs: \n: ' + e);
+        this.log('Error integrating Use case on presenter: ' + targetPresenter + ' --> ensure that corresponding presenter exit or review the following logs: \n: ' + e);
     }
 };
 
-Generator.prototype.addRepositoryToUseCase = function (packageDir, useCase) {
-    console.log('********************** addRepositoryToUseCase **********************');
-    console.log('packageDir: ' + packageDir);
-    console.log('useCase' + useCase);
-    console.log('********************************************************************');
+Generator.prototype.useCaseAlreadyExist = function (packageDir, useCaseName) {
+    const useCaseFolderName = useCaseName[0].toLocaleLowerCase() + useCaseName.substring(1);
+    const useCasePath = 'tsb-mobile/src/main/java/' + packageDir + '/domain/interactor/' + useCaseFolderName + '/' + _.capitalize(useCaseName) + 'UseCase.kt';
+    return !!fs.readFileSync(useCasePath);
+};
 
+Generator.prototype.dataSourceAlreadyExist = function (packageDir, folder, dataSource) {
+    const path = 'tsb-mobile/src/main/java/' + packageDir + '/data/repository/' + folder + '/datasource/' + dataSource + 'DataSource.kt';
+    console.log('************************************');
+    console.log(path);
+};
+
+Generator.prototype.addRepositoryToUseCase = function (packageDir, useCase, repositoryName) {
     const useCaseName = _.capitalize(useCase) + 'UseCase';
     const useCaseFolderName = useCase[0].toLocaleLowerCase() + useCase.substring(1);
+    const repositoryCapitalizedName = _.capitalize(repositoryName);
+    const repositoryFolderName = repositoryName[0].toLocaleLowerCase() + repositoryName.substring(1);
     const useCasePath = 'tsb-mobile/src/main/java/' + packageDir + '/domain/interactor/' + useCaseFolderName + '/' + useCaseName + '.kt';
 
     jhipsterUtils.rewriteFile({
         file: useCasePath,
         needle: 'android-hipster-needle-component-usecase',
         splicable: [
-            'private val ' + useCaseFolderName + ': ' + useCaseName + 'Repository'
+            'private val ' + repositoryFolderName + 'Respository: ' + repositoryCapitalizedName + 'Repository,'
         ]
     });
     jhipsterUtils.rewriteFile({
         file: useCasePath,
         needle: 'android-hipster-needle-component-usecase-imports',
         splicable: [
-            ''
+            'import uk.co.tsb.mobilebank.domain.repository.' + repositoryCapitalizedName + 'Repository'
+        ]
+    });
+};
+
+Generator.prototype.repositoryAlreadyExist = function(packageDir, respository) {
+    const folder = respository[0].toLocaleLowerCase() + respository.substring(1);
+    const path = 'tsb-mobile/src/main/java/' + packageDir + '/data/repository/' + folder + '/' + _.capitalize(respository) + 'RepositoryImpl.kt';
+    try {
+        return !!fs.readFileSync(path);
+    } catch (e) {
+        return false;
+    }
+};
+
+Generator.prototype.addDataSourceToRepositoryImpl = function(path, repository, dataSource) {
+    const repositoryPath = path + '/' + repository + 'RepositoryImpl.kt';
+    const variable = dataSource[0].toLocaleLowerCase() + dataSource.substring(1);
+
+    jhipsterUtils.rewriteFile({
+        file: repositoryPath,
+        needle: 'android-hipster-needle-component-repository',
+        splicable: [
+            'private val ' + variable + 'DataSource: ' + _.capitalize(dataSource) + 'DataSource'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: repositoryPath,
+        needle: 'android-hipster-needle-component-repository-imports',
+        splicable: [
+            'import uk.co.tsb.mobilebank.data.repository.' + repository.toLowerCase() + '.datasource.' + _.capitalize(dataSource)
+        ]
+    });
+};
+
+Generator.prototype.addDependencyModuleToFragmentProvider = function(fragmentPath, fragmentName, dataSourceName) {
+    const filePath = fragmentPath + '/di/' + fragmentName + 'FragmentProvider.kt';
+
+    console.log('********************** addDependencyModuleToFragmentProvider **********************');
+    console.log('fragmentPath: ' + fragmentPath);
+    console.log('dataSourceName: ' + dataSourceName);
+    console.log('filePath: ', filePath);
+    console.log('***************************************************************************');
+
+    jhipsterUtils.rewriteFile({
+        file: filePath,
+        needle: 'android-hipster-needle-component-fragment-provider',
+        splicable: [
+            fragmentName + 'DependencyModule::class,'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: filePath,
+        needle: 'android-hipster-needle-component-fragment-provider',
+        splicable: [
+            'import uk.co.tsb.mobilebank.ui.webview.' + fragmentName.toLowerCase() + '.' + fragmentName + 'DependencyModule'
         ]
     });
 };

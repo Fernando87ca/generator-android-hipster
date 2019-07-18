@@ -1,10 +1,11 @@
-package uk.co.tsb.mobilebank.data.repository.<%= packageName %>
+package uk.co.tsb.mobilebank.data.repository.<%= dataFolderName %>
 
-import uk.co.tsb.mobilebank.domain.repository.<%= useCaseName %>Repository
+import javax.inject.Inject
+import uk.co.tsb.mobilebank.domain.repository.<%= repositoryName %>Repository
 // android-hipster-needle-component-repository-imports
 
-class <%= useCaseName %>RepositoryImpl @Inject constructor(
+class <%= repositoryName %>RepositoryImpl @Inject constructor(
         // android-hipster-needle-component-repository
-    ) : <%= useCaseName %>Respository {
+    ) : <%= repositoryName %>Repository {
 
 }

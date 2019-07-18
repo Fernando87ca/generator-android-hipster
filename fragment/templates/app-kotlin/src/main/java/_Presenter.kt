@@ -5,6 +5,7 @@ import uk.co.tsb.mobilebank.ui.<%= packageFolder %>.<%= fragmentName %>Contract
 import uk.co.tsb.mobilebank.ui.di.qualifier.UIExecutor
 import io.reactivex.Scheduler
 import javax.inject.Inject
+// android-hipster-needle-component-presenter-imports
 
 class <%= fragmentName %>Presenter @Inject constructor(
         // android-hipster-needle-component-presenter

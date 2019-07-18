@@ -5,6 +5,7 @@ var yosay = require('yosay');
 var mkdirp = require('mkdirp');
 var generators = require('yeoman-generator');
 var _ = require('lodash');
+var async = require('async');
 
 var scriptBase = require('../script-base');
 var util = require('util');
@@ -96,12 +97,21 @@ module.exports = ActivityGenerator.extend({
             },
             default: this.defaultAppBaseName
         }, {
+            name: 'dataSource',
+            message: 'Name of datasource associated to this repository? (empty name will not create a new repository. Existing name only update reference on repository)',
+            store: true,
+            validate: function (input) {
+                if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
+                return 'Your datasource name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
+            },
+            default: this.defaultAppBaseName
+        }, {
             name: 'fragmentName',
             message: 'What fragment would you like add this Use Case, (Without UseCaseSuffix). Ex: Login',
             store: true,
             validate: function (input) {
                 if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
-                return 'Your repository name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
+                return 'Your fragment name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
             },
             default: this.defaultAppBaseName
         }];
@@ -110,6 +120,7 @@ module.exports = ActivityGenerator.extend({
             this.useCaseName = props.name;
             this.useCaseType = props.useCaseType;
             this.repositoryName = props.repository;
+            this.dataSource = props.dataSource;
             this.fragmentName = props.fragmentName;
             done();
         }.bind(this));
@@ -137,24 +148,39 @@ module.exports = ActivityGenerator.extend({
 
             // Creating folder structure
             const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/domain/interactor/' + this.packageName).toLocaleLowerCase();
-            //mkdirp(baseConstruction);
+            mkdirp(baseConstruction);
 
             // Adding presenter at selected Presenter
-            //this.addUseCaseToPresenter(packageDir, this.fragmentName, this.useCaseName);
+            this.addUseCaseToPresenter(packageDir, this.fragmentName, this.useCaseName);
 
             // template for Use Case
             const templatesSource = 'app-kotlin/src/main/java/usecase/';
-            console.log('*******' + baseConstruction + '/' + this.useCaseName + 'UseCase' + ext);
-            //this.template(templatesSource + '_UseCase' + ext, baseConstruction + '/' + this.useCaseName + 'UseCase' + ext, this, {});
+            if (!this.useCaseAlreadyExist(packageDir, this.useCaseName)) {
+                this.template(templatesSource + '_UseCase' + ext, baseConstruction + '/' + this.useCaseName + 'UseCase' + ext, this, {});
+            }
 
-            // if repository is defined
-            if (this.repositoryName !== "" || this.repositoryName !== undefined) {
-                this.addRepositoryToUseCase(packageDir, this.useCaseName);
+            // if repository is defined update the reference on use case and create repository
+            if (this.repositoryName.length > 0) {
+                this.repositoryName = _.capitalize(this.repositoryName);
+                this.addRepositoryToUseCase(packageDir, this.useCaseName, this.repositoryName);
+
+                // Creating Repository Interface
+                const repositoryBaseConstruct = mainPackage + '/' + projectPackage + '/' + packageDir + '/domain/repository';
+                this.template(templatesSource + '_Repository' + ext, repositoryBaseConstruct + '/' + this.repositoryName + 'Repository' + ext, this, {});
+
+                // Creating Repository Implementation
+                this.dataFolderName = this.repositoryName.toLowerCase();
+                var repositoryImplBaseConstruct = mainPackage + '/' + projectPackage + '/' + packageDir + '/data/repository/' + this.dataFolderName;
+                mkdirp(repositoryImplBaseConstruct);
+
+                if (!this.repositoryAlreadyExist(packageDir, this.repositoryName))
+                    this.template(templatesSource + '_RepositoryImpl' + ext, repositoryImplBaseConstruct + '/' + this.repositoryName + 'RepositoryImpl' + ext, this, {});
+                }
             }
         },
 
         install: function () {
             //this.installDependencies();
         }
-    }
+
 });

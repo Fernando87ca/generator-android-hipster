@@ -437,12 +437,6 @@ Generator.prototype.addDataSourceToRepositoryImpl = function(path, repository, d
 Generator.prototype.addDependencyModuleToFragmentProvider = function(fragmentPath, fragmentName, dataSourceName) {
     const filePath = fragmentPath + '/di/' + fragmentName + 'FragmentProvider.kt';
 
-    console.log('********************** addDependencyModuleToFragmentProvider **********************');
-    console.log('fragmentPath: ' + fragmentPath);
-    console.log('dataSourceName: ' + dataSourceName);
-    console.log('filePath: ', filePath);
-    console.log('***************************************************************************');
-
     jhipsterUtils.rewriteFile({
         file: filePath,
         needle: 'android-hipster-needle-component-fragment-provider',
@@ -452,9 +446,9 @@ Generator.prototype.addDependencyModuleToFragmentProvider = function(fragmentPat
     });
     jhipsterUtils.rewriteFile({
         file: filePath,
-        needle: 'android-hipster-needle-component-fragment-provider',
+        needle: 'android-hipster-needle-component-fragment-provider-imports',
         splicable: [
-            'import uk.co.tsb.mobilebank.ui.webview.' + fragmentName.toLowerCase() + '.' + fragmentName + 'DependencyModule'
+            'import uk.co.tsb.mobilebank.ui.' + fragmentName.toLowerCase() + '.' + fragmentName + 'DependencyModule'
         ]
     });
 };

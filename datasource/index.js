@@ -102,33 +102,37 @@ module.exports = ActivityGenerator.extend({
         },
 
         app: function () {
+            this.fragmentPackage = this.fragmentName.toLowerCase();
+            this.variableRepository = this.repositoryName.charAt(0).toLowerCase() + this.repositoryName.slice(1);
             const mainPackage = this.mainPackage.replace(/\./g, '/');
             const projectPackage = this.genericPackage.replace(/\./g, '/');
             const packageDir = this.appPackage.replace(/\./g, '/');
             const ext = ".kt";
 
+
             // creating folder structure
             this.dataFolderName = this.repositoryName.toLowerCase();
             const repositoryBasePath = mainPackage + '/' + projectPackage + '/' + packageDir + '/data/repository/' + this.dataFolderName;
             const dataSourceBasePath = repositoryBasePath + '/datasource';
-            const fragmentBasePath = mainPackage + '/' + projectPackage + '/' + packageDir + '/ui/' + this.fragmentName.toLowerCase();
+            const fragmentBasePath = mainPackage + '/' + projectPackage + '/' + packageDir + '/ui/' + this.fragmentPackage;
 
-            // mkdirp(repositoryBasePath + '/mapper');
-            // mkdirp(dataSourceBasePath + '/remote');
-            // mkdirp(dataSourceBasePath + '/mock');
-            //
-            // // Inject data source into to repository
-            // this.addDataSourceToRepositoryImpl(repositoryBasePath, this.repositoryName, this.dataSourceName);
+            mkdirp(repositoryBasePath + '/mapper');
+            mkdirp(dataSourceBasePath + '/remote');
+            mkdirp(dataSourceBasePath + '/mock');
+
+            // Inject data source into to repository
+            this.addDataSourceToRepositoryImpl(repositoryBasePath, this.repositoryName, this.dataSourceName);
             this.addDependencyModuleToFragmentProvider(fragmentBasePath, this.fragmentName, this.dataSourceName);
-            //
-            // // Generating templates
-            // const templatesSource = 'app-kotlin/src/main/java/';
-            // // Templates for Data Source
-            // this.template(templatesSource + '_DataSource' + ext, dataSourceBasePath + '/' + this.dataSourceName + 'DataSource' + ext, this, {});
-            // this.template(templatesSource + '_MockDataSource' + ext, dataSourceBasePath + '/mock/' + this.dataSourceName + 'MockDataSource' + ext, this, {});
-            // this.template(templatesSource + '_RemoteDataSource' + ext, dataSourceBasePath + '/remote/' + this.dataSourceName + 'RemoteDataSource' + ext, this, {});
-            // Template for modules
 
+            // Generating templates
+            const templatesSource = 'app-kotlin/src/main/java/';
+            // Templates for Data Source
+            this.template(templatesSource + '_DataSource' + ext, dataSourceBasePath + '/' + this.dataSourceName + 'DataSource' + ext, this, {});
+            this.template(templatesSource + '_MockDataSource' + ext, dataSourceBasePath + '/mock/' + this.dataSourceName + 'MockDataSource' + ext, this, {});
+            this.template(templatesSource + '_RemoteDataSource' + ext, dataSourceBasePath + '/remote/' + this.dataSourceName + 'RemoteDataSource' + ext, this, {});
+
+            // Template for modules
+            this.template(templatesSource + '_DependencyModule' + ext, fragmentBasePath + '/' + this.fragmentName + 'DependencyModule' + ext, this, {});
         },
 
         install: function () {

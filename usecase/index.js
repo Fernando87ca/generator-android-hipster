@@ -97,15 +97,6 @@ module.exports = ActivityGenerator.extend({
             },
             default: this.defaultAppBaseName
         }, {
-            name: 'dataSource',
-            message: 'Name of datasource associated to this repository? (empty name will not create a new repository. Existing name only update reference on repository)',
-            store: true,
-            validate: function (input) {
-                if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
-                return 'Your datasource name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
-            },
-            default: this.defaultAppBaseName
-        }, {
             name: 'fragmentName',
             message: 'What fragment would you like add this Use Case, (Without UseCaseSuffix). Ex: Login',
             store: true,
@@ -120,7 +111,7 @@ module.exports = ActivityGenerator.extend({
             this.useCaseName = props.name;
             this.useCaseType = props.useCaseType;
             this.repositoryName = props.repository;
-            this.dataSource = props.dataSource;
+            //this.dataSource = props.dataSource;
             this.fragmentName = props.fragmentName;
             done();
         }.bind(this));
@@ -175,12 +166,12 @@ module.exports = ActivityGenerator.extend({
 
                 if (!this.repositoryAlreadyExist(packageDir, this.repositoryName))
                     this.template(templatesSource + '_RepositoryImpl' + ext, repositoryImplBaseConstruct + '/' + this.repositoryName + 'RepositoryImpl' + ext, this, {});
-                }
             }
-        },
-
-        install: function () {
-            //this.installDependencies();
         }
+    },
+
+    install: function () {
+        //this.installDependencies();
+    }
 
 });

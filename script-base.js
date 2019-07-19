@@ -428,11 +428,16 @@ Generator.prototype.addDataSourceToRepositoryImpl = function(path, repository, d
     const repositoryPath = path + '/' + repository + 'RepositoryImpl.kt';
     const variable = dataSource[0].toLocaleLowerCase() + dataSource.substring(1);
 
+    const file = fs.readFileSync(repositoryPath).toString();
+    var coma = '';
+    if (file.includes('private val')) {
+        coma = ', ';
+    }
     jhipsterUtils.rewriteFile({
         file: repositoryPath,
         needle: 'android-hipster-needle-component-repository',
         splicable: [
-            'private val ' + variable + 'DataSource: ' + _.capitalize(dataSource) + 'DataSource'
+            coma + 'private val ' + variable + 'DataSource: ' + _.capitalize(dataSource) + 'DataSource'
         ]
     });
     jhipsterUtils.rewriteFile({

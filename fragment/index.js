@@ -98,6 +98,7 @@ module.exports = ActivityGenerator.extend({
                 .replace(/([A-Z])/g, '_$1')
                 .trim()
                 .toLocaleLowerCase();
+
             this.packageFolder = packageFolder.toLocaleLowerCase();
 
             const baseConstruction = (mainPackage + '/' + projectPackage + '/' + packageDir + '/ui/' + this.packageFolder).toLocaleLowerCase();

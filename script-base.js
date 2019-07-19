@@ -369,6 +369,33 @@ Generator.prototype.addUseCaseToPresenter = function (packageDir, targetPresente
     }
 };
 
+Generator.prototype.addUseCaseToPresenterTest = function (useCase, fragment) {
+    const useCaseVar = useCase[0].toLocaleLowerCase() + useCase.substring(1);
+    const path = 'tsb-mobile/src/test/kotlin/uk/co/tsb/mobilebank/ui/' + fragment.toLowerCase() + '/presenter/' + fragment + 'PresenterTest.kt';
+
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'android-hipster-needle-test-usecase-mock-values',
+        splicable: [
+            'private val ' + useCaseVar + 'UseCase: ' + useCase + 'UseCase = mock()'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'android-hipster-needle-test-usecase-mock',
+        splicable: [
+            useCaseVar + 'UseCase,'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'ndroid-hipster-needle-test-imports',
+        splicable: [
+            'import uk.co.tsb.mobilebank.domain.interactor.' + useCase.toLowerCase() + '.' + useCase + 'UseCase'
+        ]
+    });
+};
+
 Generator.prototype.useCaseAlreadyExist = function (packageDir, useCaseName) {
     const useCaseFolderName = useCaseName[0].toLocaleLowerCase() + useCaseName.substring(1);
     const useCasePath = 'tsb-mobile/src/main/java/' + packageDir + '/domain/interactor/' + useCaseFolderName + '/' + _.capitalize(useCaseName) + 'UseCase.kt';
@@ -494,7 +521,7 @@ Generator.prototype.addRepositoryToDependencyModule = function(fragmentName, rep
 
 Generator.prototype.addMoreProvidesAtDependencyModule = function(fragmentName, repositoryName, dataSourceName) {
     const fragmentPackage = fragmentName.toLowerCase();
-    const repositoryPath = repositoryName.charAt(0).toLowerCase() + repositoryName.slice(1);
+    const repositoryPath = repositoryName.toLowerCase();
     const path = 'tsb-mobile/src/main/java/uk/co/tsb/mobilebank/ui/' + fragmentPackage + '/' + fragmentName + 'DependencyModule.kt';
 
     jhipsterUtils.rewriteFile({

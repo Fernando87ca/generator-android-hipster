@@ -102,6 +102,7 @@ module.exports = ActivityGenerator.extend({
         },
 
         app: function () {
+            this.fragmentClassName = _.capitalize(this.fragmentName);
             this.fragmentPackage = this.fragmentName.toLowerCase();
             this.variableRepository = this.repositoryName.charAt(0).toLowerCase() + this.repositoryName.slice(1);
 
@@ -129,7 +130,6 @@ module.exports = ActivityGenerator.extend({
             }
 
             if (!this.dependencyModuleAlreadyExist(this.fragmentName)) {
-                console.log('we should be here');
                 this.template(templatesSource + '_DependencyModule' + ext, fragmentBasePath + '/' + this.fragmentName + 'DependencyModule' + ext, this, {});
             } else {
                 this.addRepositoryToDependencyModule(this.fragmentName, this.repositoryName);

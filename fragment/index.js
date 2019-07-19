@@ -21,6 +21,7 @@ module.exports = ActivityGenerator.extend({
             this.appName = 'tsb-mobilebanking-android';
             this.mainPackage = 'tsb-mobile';
             this.genericPackage = 'src.main.java';
+            this.testPackage = 'src.test.kotlin';
             this.imageLib = 'none';
             this.glide = false;
             this.picasso = false;
@@ -119,6 +120,14 @@ module.exports = ActivityGenerator.extend({
 
             // Template for xml View
             this.template('resources/res/layout/_fragment.xml', 'tsb-mobile/src/main/res/layout/' + this.underscoredFragmentName + '.xml', this, {});
+
+
+            // **** Automatic Test creation section ****
+            const testPackage = this.testPackage.replace(/\./g, '/');
+            const baseTestContruction = (mainPackage + '/' + testPackage + '/' + packageDir + '/ui/' + this.packageFolder).toLowerCase();
+            mkdirp(baseTestContruction + '/presenter');
+            this.testFragmentPackage = this.fragmentName.toLowerCase();
+            this.template(templatesSource + '_PresenterTest' + ext, baseTestContruction + '/presenter/' + this.fragmentName + 'PresenterTest' + ext, this, {});
         },
 
         install: function () {

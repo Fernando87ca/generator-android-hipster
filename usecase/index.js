@@ -137,6 +137,9 @@ module.exports = ActivityGenerator.extend({
             // template for Use Case
             const templatesSource = 'app-kotlin/src/main/java/usecase/';
             this.template(templatesSource + '_UseCase' + ext, baseConstruction + '/' + this.useCaseName + 'UseCase' + ext, this, {});
+
+            // Add use case to Presenter test
+            this.addUseCaseToPresenterTest(this.useCaseName, this.fragmentName);
         }
     },
 

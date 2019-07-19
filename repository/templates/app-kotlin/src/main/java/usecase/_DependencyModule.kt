@@ -11,7 +11,7 @@ import uk.co.tsb.mobilebank.utils.environment.EnvironmentManager
 // android-hipster-needle-component-dependency-module-repository-imports
 
 @Module
-class <%= fragmentName %>DependencyModule {
+class <%= fragmentClassName %>DependencyModule {
 
     // android-hipster-needle-component-dependency-module-datasource
 

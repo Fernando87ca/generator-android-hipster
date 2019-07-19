@@ -72,11 +72,21 @@ module.exports = ActivityGenerator.extend({
                 return 'Your fragment name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
             },
             default: this.defaultAppBaseName
+        },{
+            name: 'fragment',
+            message: 'Fragment name to add Dagger dependencies. Without suffix, ex: Login',
+            store: true,
+            validate: function (input) {
+                if (/^([a-zA-Z0-9_]*)$/.test(input)) return true;
+                return 'Your repository name cannot contain special characters or a blank space, using the default name instead : ' + defaultAppBaseName;
+            },
+            default: this.defaultAppBaseName
         }];
 
         this.prompt(prompts, function (props) {
             this.repositoryName = props.repository;
             this.useCaseName = props.usecase;
+            this.fragmentName = props.fragment;
             done();
         }.bind(this));
     },
@@ -92,10 +102,14 @@ module.exports = ActivityGenerator.extend({
         },
 
         app: function () {
+            this.fragmentPackage = this.fragmentName.toLowerCase();
+            this.variableRepository = this.repositoryName.charAt(0).toLowerCase() + this.repositoryName.slice(1);
+
             const mainPackage = this.mainPackage.replace(/\./g, '/');
             const projectPackage = this.genericPackage.replace(/\./g, '/');
             const packageDir = this.appPackage.replace(/\./g, '/');
             const ext = ".kt";
+            const fragmentBasePath = mainPackage + '/' + projectPackage + '/' + packageDir + '/ui/' + this.fragmentPackage;
 
             this.repositoryName = _.capitalize(this.repositoryName);
             this.addRepositoryToUseCase(packageDir, this.useCaseName, this.repositoryName);
@@ -110,10 +124,17 @@ module.exports = ActivityGenerator.extend({
             var repositoryImplBaseConstruct = mainPackage + '/' + projectPackage + '/' + packageDir + '/data/repository/' + this.dataFolderName;
             mkdirp(repositoryImplBaseConstruct);
 
-            if (!this.repositoryAlreadyExist(packageDir, this.repositoryName))
+            if (!this.repositoryAlreadyExist(packageDir, this.repositoryName)) {
                 this.template(templatesSource + '_RepositoryImpl' + ext, repositoryImplBaseConstruct + '/' + this.repositoryName + 'RepositoryImpl' + ext, this, {});
-        }
+            }
 
+            if (!this.dependencyModuleAlreadyExist(this.fragmentName)) {
+                console.log('we should be here');
+                this.template(templatesSource + '_DependencyModule' + ext, fragmentBasePath + '/' + this.fragmentName + 'DependencyModule' + ext, this, {});
+            } else {
+                this.addRepositoryToDependencyModule(this.fragmentName, this.repositoryName);
+            }
+        }
     },
 
     install: function () {

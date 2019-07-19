@@ -381,6 +381,16 @@ Generator.prototype.dataSourceAlreadyExist = function (packageDir, folder, dataS
     console.log(path);
 };
 
+Generator.prototype.dependencyModuleAlreadyExist = function (fragmentName) {
+    const fragmentPackage = fragmentName.toLowerCase();
+    try {
+        const dependencyModulePath = 'tsb-mobile/src/main/java/uk/co/tsb/mobilebank/ui/' + fragmentPackage + '/' + fragmentName + 'DependencyModule.kt';
+        return !!fs.readFileSync(dependencyModulePath);
+    } catch (e) {
+        return false
+    }
+};
+
 Generator.prototype.addRepositoryToUseCase = function (packageDir, useCase, repositoryName) {
     const useCaseName = _.capitalize(useCase) + 'UseCase';
     const useCaseFolderName = useCase[0].toLocaleLowerCase() + useCase.substring(1);
@@ -429,7 +439,7 @@ Generator.prototype.addDataSourceToRepositoryImpl = function(path, repository, d
         file: repositoryPath,
         needle: 'android-hipster-needle-component-repository-imports',
         splicable: [
-            'import uk.co.tsb.mobilebank.data.repository.' + repository.toLowerCase() + '.datasource.' + _.capitalize(dataSource)
+            'import uk.co.tsb.mobilebank.data.repository.' + repository.toLowerCase() + '.datasource.' + _.capitalize(dataSource) + 'DataSource'
         ]
     });
 };
@@ -449,6 +459,65 @@ Generator.prototype.addDependencyModuleToFragmentProvider = function(fragmentPat
         needle: 'android-hipster-needle-component-fragment-provider-imports',
         splicable: [
             'import uk.co.tsb.mobilebank.ui.' + fragmentName.toLowerCase() + '.' + fragmentName + 'DependencyModule'
+        ]
+    });
+};
+
+Generator.prototype.addRepositoryToDependencyModule = function(fragmentName, repositoryName) {
+    const fragmentPackage = fragmentName.toLowerCase();
+    const variableRepository = repositoryName.charAt(0).toLowerCase() + repositoryName.slice(1);
+    const path = 'tsb-mobile/src/main/java/uk/co/tsb/mobilebank/ui/' + fragmentPackage + '/' + fragmentName + 'DependencyModule.kt';
+
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'android-hipster-needle-component-dependency-module-repository',
+        splicable: [
+            '@Provides\n' +
+            '    fun provide' + repositoryName + 'Repository(' + variableRepository + 'Repository: ' + repositoryName + 'RepositoryImpl) : ' + repositoryName + 'Repository\n' +
+            '        = ' + variableRepository + 'Repository'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'android-hipster-needle-component-dependency-module-repository-imports',
+        splicable: [
+            'import uk.co.tsb.mobilebank.data.repository.' + repositoryName.toLowerCase() + '.' + repositoryName + 'RepositoryImpl\n' +
+            'import uk.co.tsb.mobilebank.domain.repository.' + repositoryName + 'Repository'
+        ]
+    });
+};
+
+Generator.prototype.addMoreProvidesAtDependencyModule = function(fragmentName, repositoryName, dataSourceName) {
+    const fragmentPackage = fragmentName.toLowerCase();
+    const repositoryPath = repositoryName.charAt(0).toLowerCase() + repositoryName.slice(1);
+    const path = 'tsb-mobile/src/main/java/uk/co/tsb/mobilebank/ui/' + fragmentPackage + '/' + fragmentName + 'DependencyModule.kt';
+
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'android-hipster-needle-component-dependency-module-datasource',
+        splicable: [
+            '@Provides\n' +
+            '    fun provide'+ dataSourceName +'DataSource(preferences: TsbPreferences): '+ dataSourceName +'DataSource {\n' +
+            '        return if (preferences.secureStorage is SecureStorage) {\n' +
+            '            val selectedEnvironment = (preferences.secureStorage as SecureStorage).getSelectedEnronment()\n' +
+            '\n' +
+            '            if (EnvironmentManager.checkIfSelectedEnvironmentIsMock(selectedEnvironment)) {\n' +
+            '                return '+ dataSourceName +'MockDataSource()\n' +
+            '            }\n' +
+            '           '+ dataSourceName +'RemoteDataSource()\n' +
+            '        } else {\n' +
+            '            '+ dataSourceName +'MockDataSource()\n' +
+            '        }\n' +
+            '    }'
+        ]
+    });
+    jhipsterUtils.rewriteFile({
+        file: path,
+        needle: 'android-hipster-needle-component-dependency-module-datasource-imports',
+        splicable: [
+            'import uk.co.tsb.mobilebank.data.repository.'+ repositoryPath +'.datasource.'+ dataSourceName +'DataSource\n' +
+            'import uk.co.tsb.mobilebank.data.repository.'+ repositoryPath +'.datasource.mock.'+ dataSourceName +'MockDataSource\n' +
+            'import uk.co.tsb.mobilebank.data.repository.'+ repositoryPath +'.datasource.remote.'+ dataSourceName +'RemoteDataSource'
         ]
     });
 };

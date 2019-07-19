@@ -103,7 +103,6 @@ module.exports = ActivityGenerator.extend({
 
         app: function () {
             this.fragmentPackage = this.fragmentName.toLowerCase();
-            this.variableRepository = this.repositoryName.charAt(0).toLowerCase() + this.repositoryName.slice(1);
             const mainPackage = this.mainPackage.replace(/\./g, '/');
             const projectPackage = this.genericPackage.replace(/\./g, '/');
             const packageDir = this.appPackage.replace(/\./g, '/');
@@ -131,8 +130,8 @@ module.exports = ActivityGenerator.extend({
             this.template(templatesSource + '_MockDataSource' + ext, dataSourceBasePath + '/mock/' + this.dataSourceName + 'MockDataSource' + ext, this, {});
             this.template(templatesSource + '_RemoteDataSource' + ext, dataSourceBasePath + '/remote/' + this.dataSourceName + 'RemoteDataSource' + ext, this, {});
 
-            // Template for modules
-            this.template(templatesSource + '_DependencyModule' + ext, fragmentBasePath + '/' + this.fragmentName + 'DependencyModule' + ext, this, {});
+            // Inject new data source on Dependency provider
+            this.addMoreProvidesAtDependencyModule(this.fragmentName, this.repositoryName, this.dataSourceName);
         },
 
         install: function () {

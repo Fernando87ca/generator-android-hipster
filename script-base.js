@@ -396,18 +396,6 @@ Generator.prototype.addUseCaseToPresenterTest = function (useCase, fragment) {
     });
 };
 
-Generator.prototype.useCaseAlreadyExist = function (packageDir, useCaseName) {
-    const useCaseFolderName = useCaseName[0].toLocaleLowerCase() + useCaseName.substring(1);
-    const useCasePath = 'tsb-mobile/src/main/java/' + packageDir + '/domain/interactor/' + useCaseFolderName + '/' + _.capitalize(useCaseName) + 'UseCase.kt';
-    return !!fs.readFileSync(useCasePath);
-};
-
-Generator.prototype.dataSourceAlreadyExist = function (packageDir, folder, dataSource) {
-    const path = 'tsb-mobile/src/main/java/' + packageDir + '/data/repository/' + folder + '/datasource/' + dataSource + 'DataSource.kt';
-    console.log('************************************');
-    console.log(path);
-};
-
 Generator.prototype.dependencyModuleAlreadyExist = function (fragmentName) {
     const fragmentPackage = fragmentName.toLowerCase();
     try {
